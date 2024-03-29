@@ -1,23 +1,8 @@
-import requests
-import json
+from client_moves_class import MoveClient
 
-# URL of the Flask server
-url = 'http://192.168.1.100:5000/move'
+# Example usage
+url = 'http://127.0.0.1:5000/move'
+move_sender = MoveClient(url)
+response = move_sender.send_move(100, 300)
+print(response)
 
-# Data to be sent in the POST request
-data = {
-    'x': 100,  # Example x coordinate
-    'y': 500   # Example y coordinate
-}
-
-# Convert data to JSON format
-json_data = json.dumps(data)
-
-# Send POST request to the server
-response = requests.post(url, json=json_data)
-
-# Check the response from the server
-if response.status_code == 200:
-    print("Success:", response.json())
-else:
-    print("Error:", response.json())

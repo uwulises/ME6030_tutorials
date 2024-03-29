@@ -2,6 +2,7 @@ import scara
 import logging 
 import scara.can_pizza as pizza
 from flask import Flask, request, jsonify
+import json
 import time
 
 scara.logger.setLevel(logging.INFO)
@@ -19,10 +20,10 @@ app = Flask(__name__)
 def move_robot():
     # Get JSON data from the request
     data = request.get_json()
-
-    # Extract movement instructions from the data
-    x_move = data.get('x')
-    y_move = data.get('y')
+    #convert data to dictionary
+    data = json.loads(data)
+    x_move = data['x']
+    y_move = data['y']
     #convert data to float
     x_move = float(x_move)
     y_move = float(y_move)
@@ -38,4 +39,4 @@ def move_robot():
     return jsonify({'status': 'success', 'message': 'Robot moved successfully to x: ' + str(x_move) + ' y: ' + str(y_move)})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
