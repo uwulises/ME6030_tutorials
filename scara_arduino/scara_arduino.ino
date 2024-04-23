@@ -55,14 +55,13 @@ void move_axis(int servoId, int position)
   if (servoId == 1)
   {
     L1.write(position);
-    delay(10);
   }
 
   if (servoId == 2)
   {
     L2.write(position);
-    delay(10);
   }
+
 
 }
 void loop()

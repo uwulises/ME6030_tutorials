@@ -5,11 +5,12 @@ class MoveClient:
     def __init__(self, url):
         self.url = url
 
-    def send_move(self, x, y):
+    def send_move(self, x, y, z=170):
         # Data to be sent in the POST request
         data = {
             'x': x,
-            'y': y
+            'y': y,
+            'z': z
         }
         # Convert data to JSON format
         json_data = json.dumps(data)

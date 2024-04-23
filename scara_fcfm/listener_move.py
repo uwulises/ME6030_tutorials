@@ -4,6 +4,7 @@ import scara.can_pizza as pizza
 from flask import Flask, request, jsonify
 import json
 import time
+import scara.tools.kinematics as kin
 
 scara.logger.setLevel(logging.INFO)
 nelen = scara.Robot()
@@ -36,6 +37,13 @@ def move_robot():
         return jsonify({'status': 'error', 'message': 'y must be between 400 and 600'})
     if z_move < 30 or z_move > 170:
         return jsonify({'status': 'error', 'message': 'z must be between 30 and 170'})
+    
+    current_codo = nelen.codo.axis.encoder.pos_estimate/nelen.codo.hardware_correction
+    current_hombro = nelen.hombro.axis.encoder.pos_estimate/nelen.hombro.hardware_correction
+    current_z = nelen.z.axis.encoder.pos_estimate/nelen.hombro.hardware_correction
+    current_xy = kin.direct_kin(current_hombro,current_codo)
+    current_coordinates = [current_xy[0],current_xy[1], current_z]
+    
 
     nelen.move(x_move, y_move, z_move, 'right')
     print("Moving to x: ", x_move, " y: ", y_move, " z: ", z_move)
