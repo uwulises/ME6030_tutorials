@@ -56,6 +56,11 @@ init_loc_2=[300,0]
 init_loc_3=[300,300]
 init_loc_4=[0,300]
 
+x_lims = [-200.0,300.0]
+y_lims = [200.0,600.0]
+z_lims = [30.0,170.0]
+
+
 #initiaize locations
 current_square_points=[init_loc_1,init_loc_2,init_loc_4,init_loc_3]
 current_center_Corner=[[0,0]]
@@ -168,9 +173,11 @@ def main():
             
             x_coordinate=int((centerCorner[0][1]/h)*600)-300
             y_coordinate=int((centerCorner[0][0]/w)*300)
-            print("Optical position: ",x_coordinate,", ",y_coordinate)
-
-            move_sender.send_move(x_coordinate, y_coordinate, z=100)
+            if centerCorner[0][1]!=-300:
+                print("Optical position: ",x_coordinate,", ",y_coordinate)
+                #if the position is within the range of the robot, send the move
+                if x_coordinate > x_lims[0] and x_coordinate < x_lims[1] and y_coordinate > y_lims[0] and y_coordinate < y_lims[1]:
+                    move_sender.send_move(x_coordinate, y_coordinate, z=100)
 
             
             
