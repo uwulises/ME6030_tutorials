@@ -7,7 +7,7 @@ from marker_define import *
 import keyboard
 from client_moves_class import MoveClient
 
-url = 'http://127.0.0.1:5000/move'
+url = 'http://192.168.1.100:5000/move'
 move_sender = MoveClient(url)
 
 
@@ -56,7 +56,7 @@ init_loc_2=[300,0]
 init_loc_3=[300,300]
 init_loc_4=[0,300]
 
-x_lims = [-200.0,300.0]
+x_lims = [-400.0,300.0]
 y_lims = [200.0,600.0]
 z_lims = [30.0,170.0]
 
@@ -72,14 +72,14 @@ marker_location_hold=True
 def main():
    
     # Load the ArUco dictionary
-    print("[INFO] detecting '{}' markers...".format(desired_aruco_dictionary1))
+    
     this_aruco_dictionary1 = cv2.aruco.getPredefinedDictionary(ARUCO_DICT[desired_aruco_dictionary1])   #for 4x4 markers
     this_aruco_parameters1 = cv2.aruco.DetectorParameters()  #for 4x4 markers
     this_aruco_dictionary2 = cv2.aruco.getPredefinedDictionary(ARUCO_DICT[desired_aruco_dictionary2])  #for 6x6 markers
     this_aruco_parameters2 = cv2.aruco.DetectorParameters()  #for 6x6 markers
     
     # Start the video stream
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     
     square_points=current_square_points
 
@@ -167,17 +167,24 @@ def main():
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
             
-        
-        # #pick up piece of foam    
+        if keyboard.is_pressed('c'):
+            move_sender.send_move(-200, 400, z=150)
+            time.sleep(2)
+        # #pick up piece of foam    q
         if keyboard.is_pressed('p'):
             
-            x_coordinate=int((centerCorner[0][1]/h)*600)-300
+            x_coordinate=int((centerCorner[0][1]/h)*600)
             y_coordinate=int((centerCorner[0][0]/w)*300)
-            if centerCorner[0][1]!=-300:
-                print("Optical position: ",x_coordinate,", ",y_coordinate)
-                #if the position is within the range of the robot, send the move
-                if x_coordinate > x_lims[0] and x_coordinate < x_lims[1] and y_coordinate > y_lims[0] and y_coordinate < y_lims[1]:
-                    move_sender.send_move(x_coordinate, y_coordinate, z=100)
+            
+            x_scara = -y_coordinate -125
+            y_scara = x_coordinate + 120
+            print(x_scara, y_scara)
+            #if the position is within the range of the robot, send the move
+            if x_scara > x_lims[0] and x_scara < x_lims[1] and y_scara > y_lims[0] and y_scara < y_lims[1]:
+                move_sender.send_move(x_scara, y_scara, z=100)
+                print("Sent move: ", x_scara,y_scara, 100)
+                time.sleep(3)
+                
 
             
             
