@@ -16,6 +16,16 @@ start_time = time.time()
 desired_aruco_dictionary1 = "DICT_ARUCO_ORIGINAL"
 desired_aruco_dictionary2 = "DICT_ARUCO_ORIGINAL"
 
+# mtx = [[853.06293928   0.         315.41805146]
+#  [  0.         975.51888127 242.3807209 ]
+#  [  0.           0.           1.        ]]
+# dist :
+
+# [[ 4.49137514e-01 -2.80151731e+01 -3.57937402e-02 -4.19449667e-03
+#    2.45787043e+02]]
+mtx= np.array([[853.06293928, 0., 315.41805146], [0., 975.51888127, 242.3807209], [0., 0., 1.]])
+dist= np.array([4.49137514e-01, -2.80151731e+01, -3.57937402e-02, -4.19449667e-03, 2.45787043e+02])
+
 # The different ArUco dictionaries built into the OpenCV library. 
 ARUCO_DICT = {
   "DICT_4X4_50": cv2.aruco.DICT_4X4_50,
@@ -81,6 +91,7 @@ def main():
     # Start the video stream
     cap = cv2.VideoCapture(1)
     
+    
     square_points=current_square_points
 
 
@@ -92,6 +103,12 @@ def main():
 
         
         ret, frame = cap.read()  
+        #img = cv.imread('left12.jpg')
+        h, w = frame.shape[:2]
+        newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
+        undistorted = cv2.undistort(frame, mtx, dist, None, newcameramtx)
+
+        frame = undistorted
         
         
         # Detect 4x4 ArUco markers in the video frame
