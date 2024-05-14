@@ -4,15 +4,26 @@ import scara.can_pizza as pizza
 from flask import Flask, request, jsonify
 import json
 import time
-import scara.tools.kinematics as kin
+
+command_sole0OFF = {'IS_WRITING':1,
+                   'ACTUATOR': pizza.PIZZA_ACTUATORS['DIGITAL_OUTPUT'],
+                   'FUNCTION':pizza.PIZZA_FUNCTIONS['ENABLE'],
+                   'ACTUATOR_NUM' :0,
+                   'PARAM' : 0}
+
+command_sole0ON = {'IS_WRITING':1,
+                   'ACTUATOR': pizza.PIZZA_ACTUATORS['DIGITAL_OUTPUT'],
+                   'FUNCTION':pizza.PIZZA_FUNCTIONS['ENABLE'],
+                   'ACTUATOR_NUM' :0,
+                   'PARAM' : 1}
 
 scara.logger.setLevel(logging.INFO)
 nelen = scara.Robot()
 time.sleep(1)
 
 #example: nelen.move(point[0], point[1], 180.0,'right')
-x_lims = [-200.0,200.0]
-y_lims = [400.0,600.0]
+x_lims = [-500.0,500.0]
+y_lims = [100.0,400.0]
 z_lims = [30.0,170.0]
 
 app = Flask(__name__)
@@ -26,25 +37,32 @@ def move_robot():
     x_move = data['x']
     y_move = data['y']
     z_move = data['z']
+    pizza_action = data['pizza']
     #convert data to float
     x_move = float(x_move)
     y_move = float(y_move)
     z_move = float(z_move)
+    pizza_action = bool(pizza_action)
     #check limits of x and y
-    if x_move < -200 or x_move > 200:
+    if x_move < x_lims[0] or x_move > x_lims[1]:
         return jsonify({'status': 'error', 'message': 'x must be between 0 and 400'})
-    if y_move < 400 or y_move > 600:
+    if y_move < y_lims[0] or y_move > y_lims[1]:
         return jsonify({'status': 'error', 'message': 'y must be between 400 and 600'})
-    if z_move < 30 or z_move > 170:
+    if z_move < z_lims[0] or z_move > z_lims[1]:
         return jsonify({'status': 'error', 'message': 'z must be between 30 and 170'})
     
+    if pizza_action:
+        pizza.write(command_sole0ON)
+    else:
+        pizza.write(command_sole0OFF)
+    
+    pizza_action = False
+
     current_codo = nelen.codo.axis.encoder.pos_estimate/nelen.codo.hardware_correction
     current_hombro = nelen.hombro.axis.encoder.pos_estimate/nelen.hombro.hardware_correction
     current_z = nelen.z.axis.encoder.pos_estimate/nelen.hombro.hardware_correction
-    current_xy = kin.direct_kin(current_hombro,current_codo)
-    current_coordinates = [current_xy[0],current_xy[1], current_z]
     
-
+    #move
     nelen.move(x_move, y_move, z_move, 'right')
     print("Moving to x: ", x_move, " y: ", y_move, " z: ", z_move)
     # Return a success response
