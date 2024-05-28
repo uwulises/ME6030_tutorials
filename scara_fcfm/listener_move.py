@@ -27,6 +27,14 @@ y_lims = [100.0,400.0]
 z_lims = [30.0,170.0]
 
 app = Flask(__name__)
+@app.route('/solenoidON', methods=['GET'])
+def solenoidON():
+    pizza.write(command_sole0ON)
+    return jsonify({'status': 'success', 'message': 'Solenoid ON'})
+@app.route('/solenoidOFF', methods=['GET'])
+def solenoidOFF():
+    pizza.write(command_sole0OFF)
+    return jsonify({'status': 'success', 'message': 'Solenoid OFF'})
 
 @app.route('/move', methods=['POST'])
 def move_robot():
@@ -37,12 +45,10 @@ def move_robot():
     x_move = data['x']
     y_move = data['y']
     z_move = data['z']
-    pizza_action = data['pizza']
     #convert data to float
     x_move = float(x_move)
     y_move = float(y_move)
     z_move = float(z_move)
-    pizza_action = bool(pizza_action)
     #check limits of x and y
     if x_move < x_lims[0] or x_move > x_lims[1]:
         return jsonify({'status': 'error', 'message': 'x must be between 0 and 400'})
@@ -50,13 +56,6 @@ def move_robot():
         return jsonify({'status': 'error', 'message': 'y must be between 400 and 600'})
     if z_move < z_lims[0] or z_move > z_lims[1]:
         return jsonify({'status': 'error', 'message': 'z must be between 30 and 170'})
-    
-    if pizza_action:
-        pizza.write(command_sole0ON)
-    else:
-        pizza.write(command_sole0OFF)
-    
-    pizza_action = False
 
     current_codo = nelen.codo.axis.encoder.pos_estimate/nelen.codo.hardware_correction
     current_hombro = nelen.hombro.axis.encoder.pos_estimate/nelen.hombro.hardware_correction
